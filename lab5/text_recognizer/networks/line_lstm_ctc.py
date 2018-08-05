@@ -50,10 +50,14 @@ def line_lstm_ctc(input_shape, output_shape, window_width=28, window_stride=14):
     convnet_outputs = TimeDistributed(convnet)(image_patches)
     # (num_windows, 128)
 
-    lstm_output = lstm_fn(128, return_sequences=True)(convnet_outputs)
+    lstm_output = Bidirectional(lstm_fn(128, return_sequences=True))(convnet_outputs)
     # (num_windows, 128)
-
-    softmax_output = Dense(num_classes, activation='softmax', name='softmax_output')(lstm_output)
+    lstm_output = Dropout(0.3)(lstm_output)
+    
+    lstm_output2 = Bidirectional(lstm_fn(128, return_sequences=True))(lstm_output)
+    lstm_output2 = Dropout(0.2)(lstm_output2)
+    
+    softmax_output = Dense(num_classes, activation='softmax', name='softmax_output')(lstm_output2)
     # (num_windows, num_classes)
     ##### Your code above (Lab 3)
 
